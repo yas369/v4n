@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vision4Life – Your Environmental Twin</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Background System -->
+    <div id="bg-layer">
+        <div class="fog"></div>
+        <canvas id="particle-canvas"></canvas>
+    </div>
+
+    <!-- Side Navigation -->
+    <div id="side-nav">
+        <div class="nav-dot active" data-page="p1" title="Start"></div>
+        <div class="nav-dot" data-page="p2" title="Impact Area"></div>
+        <div class="nav-dot" data-page="p3" title="Your Inputs"></div>
+        <div class="nav-dot" data-page="p4" title="Impact"></div>
+        <div class="nav-dot" data-page="p5" title="Challenge"></div>
+    </div>
+
+
+
+    <main class="app-view">
+
+        <!-- PAGE 1: LANDING -->
+        <section id="p1-landing" class="page active">
+            <div class="brand-tag">VISION4LIFE</div>
+            <h1>Watch how much<br>you can change.</h1>
+            <h2>Your personal environmental transformation starts here.</h2>
+            <button id="btn-start" class="btn-pill">Start Here</button>
+            <p class="privacy-note">🔒 No data stored. All calculations run locally.</p>
+        </section>
+
+        <!-- PAGE 2: CHOOSE IMPACT AREA -->
+        <section id="p2-area" class="page">
+            <h1>Choose Your<br>Impact Area</h1>
+            <h2>Explore one area at a time.</h2>
+
+            <div class="impact-grid" id="impact-grid">
+                <!-- JS Injected -->
+            </div>
+            <!-- Grid cards handle selection directly, no "Continue" button needed or it appears after -->
+        </section>
+
+        <!-- PAGE 3: MODULE INPUT -->
+        <section id="p3-input" class="page">
+            <h1 id="module-title">Tell us about your Mobility</h1>
+            <h2 id="module-subtitle">A few quick inputs to estimate your impact.</h2>
+
+            <div id="module-inputs">
+                <!-- JS Injected per module -->
+            </div>
+
+            <button id="btn-calc" class="btn-pill">Analyze My Impact</button>
+        </section>
+
+        <!-- PAGE 4: IMPACT REVEAL -->
+        <section id="p4-impact" class="page">
+            <div class="toggle-container" id="impact-toggle">
+                <div class="toggle-bg"></div>
+                <div class="toggle-btn" data-mode="damage">🌫 Current Impact</div>
+                <div class="toggle-btn" data-mode="heal">🌱 Greener Shift</div>
+            </div>
+
+            <div class="impact-display" style="margin-top: 2rem;">
+                <span class="big-num" id="display-emission">0</span>
+                <span id="display-unit">kg CO₂ / year</span>
+                <div class="tree-grid" id="visual-grid"></div>
+                <p id="display-desc" style="margin-top: 1rem; opacity: 0.8;"></p>
+            </div>
+
+            <button id="btn-challenge" class="btn-pill hidden">Start 14-Day Healing Challenge</button>
+        </section>
+
+        <!-- PAGE 5: CHALLENGE SEQUENCE -->
+        <section id="p5-challenge" class="page">
+            <h2 style="margin-bottom:1rem;">14-Day Healing Journey</h2>
+            <div class="day-counter" id="day-counter">1</div>
+            <div id="tree-growth-stage" style="font-size: 6rem; margin: 2rem 0;">🌱</div>
+
+            <div class="final-stats hidden" id="final-stats">
+                <h1>You Saved <span id="saved-kg">0</span> kg CO₂</h1>
+                <p>If sustained yearly: <strong><span id="saved-annual">0</span> kg</strong> reduced.</p>
+                <p style="margin-top:0.5rem;">That's <span id="saved-trees">0</span> trees worth of emissions.</p>
+                <div class="glass-card badge-card">
+                    🏅 BADGE UNLOCKED: <br><strong>ECO HABIT STARTER</strong>
+                </div>
+                <button id="btn-another" class="btn-pill" style="margin-top:2rem;">Explore Another Area</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Draggable Flowmap -->
+    <div id="flowmap" class="flowmap">
+        <div class="flowmap-handle" id="flow-handle">✥</div>
+        <div class="flow-nodes">
+            <div class="flow-node active" data-target="p1-landing" title="Start">Start</div>
+            <div class="flow-line"></div>
+            <div class="flow-node" data-target="p2-area" title="Impact Area">Area</div>
+            <div class="flow-line"></div>
+            <div class="flow-node" data-target="p3-input" title="Your Inputs">Input</div>
+            <div class="flow-line"></div>
+            <div class="flow-node" data-target="p4-impact" title="Impact">Reveal</div>
+            <div class="flow-line"></div>
+            <div class="flow-node" data-target="p5-challenge" title="Challenge">Act</div>
+        </div>
+    </div>
+
+    <script src="calculate.js"></script>
+    <script src="animations.js"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>
