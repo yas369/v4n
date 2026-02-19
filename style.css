@@ -194,6 +194,7 @@ h2 {
 }
 
 .brand-tag {
+    --spacing-xs: 4px;
     font-size: 1.2rem;
     letter-spacing: 3px;
     margin-bottom: 2rem;
@@ -656,6 +657,75 @@ h2 {
     height: 12px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 1px;
+}
+
+/* ─── Page 2: Profile (Unified) ─── */
+#profile-inputs-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding-bottom: 4rem;
+}
+
+.profile-section {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, background 0.3s;
+}
+
+.profile-section:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.section-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ─── Page 3: Reveal (Consolidated) ─── */
+.visual-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    max-width: 800px;
+    margin: 2rem auto;
+    min-height: 200px;
+    /* Prevent jump */
+}
+
+.tree-icon {
+    font-size: 1.5rem;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    opacity: 0;
+    transform: scale(0);
+}
+
+.tree-icon.grey {
+    filter: grayscale(100%) brightness(0.7);
+}
+
+.tree-icon.green {
+    filter: none;
+}
+
+@keyframes popIn {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Toggle Switch specific for Impact */
+.toggle-container {
+    /* reuse existing toggle style but ensure labels fit */
+    width: 300px;
 }
 
 /* Hide old side-nav if present */

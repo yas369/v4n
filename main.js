@@ -147,83 +147,102 @@ window.Vision4Life = class Vision4Life {
     }
 
     init() {
-        this.renderImpactGrid();
+        this.renderFullProfile();
         this.bindEvents();
-        // this.setupScrollButtons(); // Removed, handled by native scroll
         if (window.Effects) window.Effects.init();
+
+        // Init Flowmap active state
+        // if (window.flowmap) window.flowmap.setActive('p1-landing');
     }
 
     // ─── NAVIGATION ───
-    // ─── NAVIGATION ───
     goTo(id) {
-        const next = this.screens[id];
+        const next = document.getElementById(id);
         if (next) {
-            next.classList.add('active'); // Ensure it's visible
-            next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Hide all pages? No, style.css handles .page.active
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            next.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // Update Side Nav
-            document.querySelectorAll('.nav-dot').forEach(d => {
-                d.classList.toggle('active', d.dataset.page === id);
+            // Update Flowmap
+            document.querySelectorAll('.flow-node').forEach(n => {
+                n.classList.toggle('active', n.dataset.target === id);
             });
         }
     }
 
     // Scroll buttons removed
 
-    // ─── PAGE 2: IMPACT AREA DECK ───
-    // ─── PAGE 2: IMPACT GRID ───
-    renderImpactGrid() {
-        const grid = document.getElementById('impact-grid');
-        grid.innerHTML = '';
+    // ─── PAGE 2: FULL PROFILE (ALL INPUTS) ───
+    renderFullProfile() {
+        const container = document.getElementById('profile-inputs-container');
+        container.innerHTML = '';
 
-        this.modules.forEach((m) => {
-            const card = document.createElement('div');
-            card.className = 'impact-card';
-            card.innerHTML = `
-                <div class="impact-card-icon">${m.icon}</div>
-                <h3>${m.name}</h3>
-                <p>${m.desc}</p>
+        this.modules.forEach(mod => {
+            const section = document.createElement('div');
+            section.className = 'profile-section glass-card';
+            section.style.marginBottom = '2rem';
+
+            // Header
+            section.innerHTML = `
+                <div class="section-header" style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:1rem;">
+                    <div style="font-size:2rem;">${mod.icon}</div>
+                    <div>
+                        <h3 style="margin:0; font-size:1.4rem;">${mod.name}</h3>
+                        <p style="margin:0; opacity:0.7; font-size:0.9rem;">${mod.desc}</p>
+                    </div>
+                </div>
+                <div class="section-body" id="body-${mod.id}"></div>
             `;
-            card.addEventListener('click', () => {
-                this.activeModule = m.id;
-                // Highlight selected
-                document.querySelectorAll('.impact-card').forEach(c => c.classList.remove('selected'));
-                card.classList.add('selected');
+            container.appendChild(section);
 
-                // Proceed to Input
-                this.setupModuleInputs();
-                // Reveal P3 if hidden (it is by default)
-                document.getElementById('p3-input').classList.add('active');
-                this.goTo('p3');
-            });
-            grid.appendChild(card);
+            const body = section.querySelector(`#body-${mod.id}`);
+            switch (mod.id) {
+                case 'mobility': this.renderMobilityInputs(body); break;
+                case 'diet': this.renderDietInputs(body); break;
+                case 'energy': this.renderEnergyInputs(body); break;
+                case 'consumption': this.renderConsumptionInputs(body); break;
+            }
         });
     }
 
-    // ─── PAGE 3: DYNAMIC MODULE INPUTS ───
-    setupModuleInputs() {
-        const container = document.getElementById('module-inputs');
-        const modId = this.activeModule;
-        const module = this.modules.find(m => m.id === modId);
-        container.innerHTML = '';
+    calculateTotalImpact() {
+        let totalKg = 0;
+        let totalTrees = 0;
+        let savingsKg = 0;
+        let savingsTrees = 0;
 
-        if (!module) return;
+        const results = {};
 
-        document.getElementById('module-title').innerText = `Tell us about your ${module.name}`;
-        document.getElementById('module-subtitle').innerText = module.desc;
+        this.modules.forEach(mod => {
+            try {
+                const res = Utils.calculateHeal(mod.id, this.state);
+                console.log(`Calculated ${mod.id}:`, res);
+                if (res && res.current) {
+                    results[mod.id] = res;
+                    totalKg += res.current.annualKg || 0;
+                    totalTrees += res.current.treesRequired || 0;
+                    savingsKg += res.savings.annualKg || 0;
+                    savingsTrees += res.savings.treesSaved || 0;
+                } else {
+                    console.warn(`Invalid result for ${mod.id}`, res);
+                }
+            } catch (err) {
+                console.error(`Error calculating ${mod.id}:`, err);
+            }
+        });
 
-        // Enable calc button by default for non-mobility modules
-        const calcBtn = document.getElementById('btn-calc');
-        calcBtn.disabled = false;
-        calcBtn.style.opacity = '1';
-        calcBtn.style.cursor = 'pointer';
-
-        switch (modId) {
-            case 'mobility': this.renderMobilityInputs(container); break;
-            case 'diet': this.renderDietInputs(container); break;
-            case 'energy': this.renderEnergyInputs(container); break;
-            case 'consumption': this.renderConsumptionInputs(container); break;
-        }
+        // Store aggregated result
+        this.state.calculated = {
+            current: { annualKg: totalKg, treesRequired: totalTrees },
+            target: { annualKg: totalKg - savingsKg, treesRequired: totalTrees - savingsTrees },
+            savings: {
+                annualKg: savingsKg,
+                treesSaved: savingsTrees,
+                challengeSavedKg: (savingsKg / 365) * 14
+            },
+            breakdown: results
+        };
     }
 
 
@@ -316,7 +335,7 @@ window.Vision4Life = class Vision4Life {
     validateMobility() {
         const sum = Object.values(this.state.transportMix).reduce((a, b) => a + b, 0);
         const target = this.state.distance;
-        const btn = document.getElementById('btn-calc');
+        const btn = document.getElementById('btn-reveal-impact');
         const warn = document.getElementById('setup-warning');
         const sumEl = document.getElementById('mode-sum');
 
@@ -324,17 +343,21 @@ window.Vision4Life = class Vision4Life {
 
         if (sum === target) {
             if (warn) warn.style.opacity = '0';
-            btn.disabled = false;
-            btn.style.opacity = '1';
-            btn.style.cursor = 'pointer';
+            if (btn) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            }
         } else {
             if (warn) {
                 warn.style.opacity = '1';
                 warn.innerText = sum < target ? `Add ${target - sum} more km` : `Remove ${sum - target} km`;
             }
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
-            btn.style.cursor = 'not-allowed';
+            if (btn) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'not-allowed';
+            }
         }
     }
 
@@ -460,49 +483,84 @@ window.Vision4Life = class Vision4Life {
     }
 
     // ─── EVENTS ───
+    // ─── EVENTS ───
     bindEvents() {
-        document.getElementById('btn-start').addEventListener('click', () => this.goTo('p2'));
+        document.getElementById('btn-start').addEventListener('click', () => this.goTo('p2-profile'));
 
-        // Deck Nav Removed
-        // Keyboard Nav Removed
+        // Reveal Impact
+        const btnReveal = document.getElementById('btn-reveal-impact');
+        if (btnReveal) {
+            console.log("Binding Reveal Button");
+            btnReveal.addEventListener('click', () => {
+                console.log("Reveal Clicked");
+                // Optional: validate mobility match?
+                const dist = this.state.distance;
+                const mixSum = Object.values(this.state.transportMix).reduce((a, b) => a + b, 0);
 
-        // Continue from area removed (grid handles it)
+                if (dist !== mixSum) {
+                    alert(`Please ensure your Transport Mode breakdown (${mixSum} km) matches your Total Distance (${dist} km)!`);
+                    document.getElementById('mix-sliders').scrollIntoView({ behavior: 'smooth' });
+                    return;
+                }
 
-        // Analyze
-        document.getElementById('btn-calc').addEventListener('click', () => {
-            if (document.getElementById('btn-calc').disabled) return;
-            const res = Utils.calculateHeal(this.activeModule, this.state);
-            this.state.calculated = res;
-            // Reset toggle
-            document.getElementById('impact-toggle').classList.remove('active-right');
-            document.getElementById('btn-challenge').classList.add('hidden');
-            this.renderImpact('damage');
-            this.goTo('p4');
-        });
+                // Step 1: Calculate
+                try {
+                    this.calculateTotalImpact();
+                } catch (e) {
+                    console.error("Calc Failed:", e);
+                    alert("Calculation Error: " + e.message);
+                    return;
+                }
 
-        // Toggle
+                // Step 2: Visuals
+                try {
+                    if (window.Effects) window.Effects.triggerConfetti();
+                    document.body.style.transition = 'background 1s';
+                } catch (e) {
+                    console.warn("Effect Failed:", e); // Non-critical
+                }
+
+                // Step 3: Render & Nav
+                try {
+                    this.renderImpact('damage');
+                    this.goTo('p3-reveal');
+                } catch (e) {
+                    console.error("Render/Nav Failed:", e);
+                    alert("Display Error: " + e.message);
+                }
+            });
+        } else {
+            console.error("Reveal Button Not Found!");
+        }
+
+        // Toggle Shock/Heal
         const toggle = document.getElementById('impact-toggle');
         toggle.addEventListener('click', () => {
             toggle.classList.toggle('active-right');
             const isHeal = toggle.classList.contains('active-right');
-            this.renderImpact(isHeal ? 'heal' : 'damage');
+            // Animate transition
+            this.renderImpact(isHeal ? 'heal' : 'damage'); // This will update aggregated display
             if (isHeal) document.getElementById('btn-challenge').classList.remove('hidden');
         });
 
-        // Challenge
+        // Challenge Start
         document.getElementById('btn-challenge').addEventListener('click', () => {
-            this.goTo('p5');
+            this.goTo('p4-challenge');
             this.runChallengeSequence();
         });
 
-        // Explore Another Area
-        document.getElementById('btn-another').addEventListener('click', () => {
+        // Restart
+        const btnRestart = document.getElementById('btn-restart');
+        if (btnRestart) btnRestart.addEventListener('click', () => {
+            this.goTo('p2-profile');
             document.getElementById('final-stats').classList.add('hidden');
             document.getElementById('day-counter').innerText = '1';
             document.getElementById('tree-growth-stage').innerText = '🌱';
-            document.getElementById('tree-growth-stage').style.transform = 'scale(1)';
-            this.goTo('p2');
         });
+
+        // Explore Another Area (now just scroll up?)
+        const btnAnother = document.getElementById('btn-another');
+        if (btnAnother) btnAnother.addEventListener('click', () => this.goTo('p2-profile'));
     }
 
     // ─── PAGE 4: IMPACT RENDER ───
@@ -511,7 +569,7 @@ window.Vision4Life = class Vision4Life {
         if (!data) return;
 
         const displayVal = document.getElementById('display-emission');
-        const displayDesc = document.getElementById('display-desc');
+        const displayDesc = document.getElementById('impact-desc'); // Fixed ID
         const grid = document.getElementById('visual-grid');
 
         let targetNum, treesReq;
@@ -520,7 +578,8 @@ window.Vision4Life = class Vision4Life {
         if (mode === 'damage') {
             targetNum = data.current.annualKg || 0;
             treesReq = data.current.treesRequired || 0;
-            displayDesc.innerText = `This is the cost of your daily habits. Requires ${treesReq} trees to absorb.`;
+            // Provide aggregated context
+            displayDesc.innerText = `This is the cost of our daily habits. Requires ${treesReq} trees to absorb.`;
             Effects.setMood('fog');
 
             for (let i = 0; i < Math.min(treesReq, 50); i++) {
@@ -534,7 +593,7 @@ window.Vision4Life = class Vision4Life {
             targetNum = data.target.annualKg || 0;
             treesReq = data.target.treesRequired || 0;
             const saved = data.savings.treesSaved || 0;
-            displayDesc.innerText = `You save ${saved} trees worth of emissions!`;
+            displayDesc.innerText = `You save ${saved} trees worth of emissions annually with these changes.`;
             Effects.setMood('bloom');
 
             for (let i = 0; i < Math.min(treesReq, 50); i++) {
@@ -596,9 +655,9 @@ window.Vision4Life = class Vision4Life {
         const savedTrees = data?.savings?.treesSaved || 0;
         const savedAnnual = data?.savings?.annualKg || 0;
 
-        document.getElementById('saved-kg').innerText = Math.round(savedKg);
-        document.getElementById('saved-annual').innerText = Math.round(savedAnnual);
-        document.getElementById('saved-trees').innerText = savedTrees;
+        if (document.getElementById('saved-kg')) document.getElementById('saved-kg').innerText = Math.round(savedKg);
+        if (document.getElementById('saved-annual')) document.getElementById('saved-annual').innerText = Math.round(savedAnnual);
+        if (document.getElementById('saved-trees')) document.getElementById('saved-trees').innerText = savedTrees;
 
         Effects.triggerConfetti();
     }
@@ -621,12 +680,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btn) {
             btn.addEventListener('click', () => {
                 document.getElementById('p1-landing').classList.remove('active');
-                document.getElementById('p1-landing').classList.add('exit-left');
-                const p2 = document.getElementById('p2-area');
+                const p2 = document.getElementById('p2-profile');
                 p2.classList.add('active');
-                p2.classList.remove('enter-right');
-                // trigger deck setup if possible
-                if (window.app) window.app.setupImpactDeck();
+                if (window.app) window.app.renderFullProfile();
             });
         }
     }

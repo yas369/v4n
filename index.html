@@ -39,60 +39,65 @@
             <p class="privacy-note">🔒 No data stored. All calculations run locally.</p>
         </section>
 
-        <!-- PAGE 2: CHOOSE IMPACT AREA -->
-        <section id="p2-area" class="page">
-            <h1>Choose Your<br>Impact Area</h1>
-            <h2>Explore one area at a time.</h2>
+        <!-- PAGE 2: PERSONAL ENVIRONMENTAL PROFILE (Inputs) -->
+        <section id="p2-profile" class="page">
+            <h1>Your Environmental<br>Profile</h1>
+            <p>Tell us about your lifestyle to reveal your footprint.</p>
 
-            <div class="impact-grid" id="impact-grid">
-                <!-- JS Injected -->
+            <div id="profile-inputs-container">
+                <!-- JS will inject Mobility, Diet, Energy, Consumption sections here -->
             </div>
-            <!-- Grid cards handle selection directly, no "Continue" button needed or it appears after -->
+
+            <button id="btn-reveal-impact" class="btn-pill" style="margin-top: 3rem;">Reveal My Environmental
+                Impact</button>
         </section>
 
-        <!-- PAGE 3: MODULE INPUT -->
-        <section id="p3-input" class="page">
-            <h1 id="module-title">Tell us about your Mobility</h1>
-            <h2 id="module-subtitle">A few quick inputs to estimate your impact.</h2>
-
-            <div id="module-inputs">
-                <!-- JS Injected per module -->
+        <!-- PAGE 3: COLLECTIVE IMPACT REVEAL -->
+        <section id="p3-reveal" class="page">
+            <div class="impact-header">
+                <h1 id="impact-title">Total Impact</h1>
+                <p id="impact-desc">Calculating...</p>
             </div>
 
-            <button id="btn-calc" class="btn-pill">Analyze My Impact</button>
+            <div class="visual-grid" id="visual-grid"></div>
+
+            <div class="impact-stats" id="impact-stats">
+                <div class="stat-box">
+                    <span class="stat-val" id="display-emission">0</span>
+                    <span class="stat-label">kg CO₂/Year</span>
+                </div>
+                <!-- Toggle Switch -->
+                <div class="toggle-container" id="impact-toggle">
+                    <div class="toggle-track"></div>
+                    <div class="toggle-knob"></div>
+                    <div class="toggle-labels">
+                        <span>Current Impact</span>
+                        <span>Greener Shift</span>
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-challenge" class="btn-pill hidden" style="margin-top: 2rem;">Start 14-Day Healing
+                Challenge</button>
         </section>
 
-        <!-- PAGE 4: IMPACT REVEAL -->
-        <section id="p4-impact" class="page">
-            <div class="toggle-container" id="impact-toggle">
-                <div class="toggle-bg"></div>
-                <div class="toggle-btn" data-mode="damage">🌫 Current Impact</div>
-                <div class="toggle-btn" data-mode="heal">🌱 Greener Shift</div>
+        <!-- PAGE 4: 14-DAY CHALLENGE -->
+        <section id="p4-challenge" class="page">
+            <h1>14-Day<br>Transformation</h1>
+            <div class="challenge-vis">
+                <div class="tree-growth" id="tree-growth-stage">🌱</div>
+                <div class="day-counter">Day <span id="day-counter">1</span></div>
             </div>
+            <p id="challenge-status">Simulating your journey...</p>
 
-            <div class="impact-display" style="margin-top: 2rem;">
-                <span class="big-num" id="display-emission">0</span>
-                <span id="display-unit">kg CO₂ / year</span>
-                <div class="tree-grid" id="visual-grid"></div>
-                <p id="display-desc" style="margin-top: 1rem; opacity: 0.8;"></p>
-            </div>
-
-            <button id="btn-challenge" class="btn-pill hidden">Start 14-Day Healing Challenge</button>
-        </section>
-
-        <!-- PAGE 5: CHALLENGE SEQUENCE -->
-        <section id="p5-challenge" class="page">
-            <h2 style="margin-bottom:1rem;">14-Day Healing Journey</h2>
-            <div class="day-counter" id="day-counter">1</div>
-            <div id="tree-growth-stage" style="font-size: 6rem; margin: 2rem 0;">🌱</div>
-
-            <div class="final-stats hidden" id="final-stats">
-                <h1>You Saved <span id="saved-kg">0</span> kg CO₂</h1>
-                <p>If sustained yearly: <strong><span id="saved-annual">0</span> kg</strong> reduced.</p>
-                <p style="margin-top:0.5rem;">That's <span id="saved-trees">0</span> trees worth of emissions.</p>
+            <div id="final-stats" class="hidden">
+                <h2>Environmental Transformer</h2>
+                <p>You saved <span id="saved-kg">0</span> kg CO₂!</p>
+                <p>Equivalent to <span id="saved-trees">0</span> trees annually.</p>
                 <div class="glass-card badge-card">
                     🏅 BADGE UNLOCKED: <br><strong>ECO HABIT STARTER</strong>
                 </div>
+                <button id="btn-restart" class="btn-pill" style="margin-top: 1rem;">Recalculate</button>
                 <button id="btn-another" class="btn-pill" style="margin-top:2rem;">Explore Another Area</button>
             </div>
         </section>
@@ -105,13 +110,11 @@
         <div class="flow-nodes">
             <div class="flow-node active" data-target="p1-landing" title="Start">Start</div>
             <div class="flow-line"></div>
-            <div class="flow-node" data-target="p2-area" title="Impact Area">Area</div>
+            <div class="flow-node" data-target="p2-profile" title="Profile">Profile</div>
             <div class="flow-line"></div>
-            <div class="flow-node" data-target="p3-input" title="Your Inputs">Input</div>
+            <div class="flow-node" data-target="p3-reveal" title="Results">Results</div>
             <div class="flow-line"></div>
-            <div class="flow-node" data-target="p4-impact" title="Impact">Reveal</div>
-            <div class="flow-line"></div>
-            <div class="flow-node" data-target="p5-challenge" title="Challenge">Act</div>
+            <div class="flow-node" data-target="p4-challenge" title="Action">Action</div>
         </div>
     </div>
 
