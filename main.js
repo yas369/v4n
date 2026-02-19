@@ -139,6 +139,8 @@ window.Vision4Life = class Vision4Life {
             monthlyKwh: 150, acHours: 3,
             // Consumption
             clothingFreq: 'quarterly', isFastFashion: false, plasticLevel: 'medium',
+            // Context
+            city: '',
             // Results
             calculated: null
         };
@@ -487,6 +489,15 @@ window.Vision4Life = class Vision4Life {
     bindEvents() {
         document.getElementById('btn-start').addEventListener('click', () => this.goTo('p2-profile'));
 
+        // City Input (Interactive Grid)
+        document.querySelectorAll('.city-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                this.state.city = btn.dataset.city;
+            });
+        });
+
         // Reveal Impact
         const btnReveal = document.getElementById('btn-reveal-impact');
         if (btnReveal) {
@@ -608,6 +619,16 @@ window.Vision4Life = class Vision4Life {
         const startVal = parseInt(displayVal.innerText) || 0;
         const endVal = Math.round(targetNum) || 0;
         this.animateValue(displayVal, startVal, endVal, 1000);
+
+        if (mode === 'damage') {
+            this.generateSuggestions();
+        } else {
+            // Hide suggestions in heal mode? Or keep them?
+            // User asked for suggestions at end of result. Keeping them is fine.
+            // But maybe update them?
+            // "Heal" mode is hypothetical. Suggestions help achieve Heal.
+            // So keep them.
+        }
     }
 
     animateValue(obj, start, end, duration) {
@@ -621,6 +642,71 @@ window.Vision4Life = class Vision4Life {
             if (p < 1) requestAnimationFrame(step);
         };
         requestAnimationFrame(step);
+    }
+
+    // ─── SUGGESTIONS ───
+    generateSuggestions() {
+        const container = document.getElementById('suggestions-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const tips = {
+            mobility: [
+                { icon: '🚐', text: 'Carpooling cuts your commute emissions by 50%.' },
+                { icon: '🚇', text: 'Public transport reduces road congestion and smog.' },
+                { icon: '🚲', text: 'Short trips? Walking or cycling is zero-carbon.' }
+            ],
+            diet: [
+                { icon: '🥦', text: 'One meat-free day a week saves 1000s of liters of water.' },
+                { icon: '🌽', text: 'Local, seasonal food reduces heavy transport emissions.' },
+                { icon: '🥛', text: 'Plant-based milk alternatives have a lower carbon footprint.' }
+            ],
+            energy: [
+                { icon: '💡', text: 'LED bulbs use 75% less energy than old filament bulbs.' },
+                { icon: '❄️', text: 'Set AC to 24°C to save 6% electricity per degree.' },
+                { icon: '☀️', text: 'Solar water heaters perform great in Indian climate.' }
+            ],
+            consumption: [
+                { icon: '👕', text: 'Thrifting or swapping extends clothes life by 2+ years.' },
+                { icon: '🛍️', text: 'Carry a cloth bag to save 100s of plastic bags annually.' },
+                { icon: '📦', text: 'Minimal packaging choices reduce landfill waste.' }
+            ]
+        };
+
+        // Find high impact areas
+        const br = this.state.calculated?.breakdown;
+        if (!br) return;
+
+        const sorted = Object.entries(br)
+            .sort(([, a], [, b]) => (b.current.annualKg || 0) - (a.current.annualKg || 0));
+
+        // Get top 2 categories
+        const topCats = sorted.slice(0, 2).map(([k]) => k);
+        const selectedTips = [];
+
+        // Pick 1 tip from each top category
+        topCats.forEach(cat => {
+            const t = tips[cat];
+            if (t) selectedTips.push(t[Math.floor(Math.random() * t.length)]);
+        });
+
+        // Add 1 general or city specific tip
+        const city = this.state.city;
+        if (city === 'Delhi') selectedTips.push({ icon: '😷', text: 'In Delhi, reducing vehicle use directly fights winter smog.' });
+        else if (city === 'Bangalore') selectedTips.push({ icon: '💧', text: 'Bangalore needs water security. Rainwater harvesting helps.' });
+        else if (city === 'Mumbai') selectedTips.push({ icon: '🌊', text: 'Coastal cities like Mumbai benefit from plastic-free oceans.' });
+        else selectedTips.push({ icon: '🌿', text: 'Planting native trees requires less water and supports local birds.' });
+
+        // Render
+        selectedTips.forEach(tip => {
+            const card = document.createElement('div');
+            card.className = 'suggestion-card glass-card';
+            card.innerHTML = `
+                <div class="suggestion-icon">${tip.icon}</div>
+                <div class="suggestion-text">${tip.text}</div>
+            `;
+            container.appendChild(card);
+        });
     }
 
     // ─── PAGE 5: CHALLENGE ───

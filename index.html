@@ -44,6 +44,22 @@
             <h1>Your Environmental<br>Profile</h1>
             <p>Tell us about your lifestyle to reveal your footprint.</p>
 
+            <div class="glass-card" style="margin-bottom: 2rem; padding: 1.5rem;">
+                <label class="input-label"
+                    style="display:block; margin-bottom:1rem; font-size:1.2rem; text-align:center;">Select Your
+                    City</label>
+                <div id="city-selection-container" class="city-grid-ui">
+                    <button class="city-btn" data-city="Bangalore"><span class="city-icon">🌳</span> Bangalore</button>
+                    <button class="city-btn" data-city="Delhi"><span class="city-icon">🏛️</span> Delhi</button>
+                    <button class="city-btn" data-city="Mumbai"><span class="city-icon">🌊</span> Mumbai</button>
+                    <button class="city-btn" data-city="Chennai"><span class="city-icon">⛱️</span> Chennai</button>
+                    <button class="city-btn" data-city="Hyderabad"><span class="city-icon">🕌</span> Hyderabad</button>
+                    <button class="city-btn" data-city="Kolkata"><span class="city-icon">🌉</span> Kolkata</button>
+                    <button class="city-btn" data-city="Other"><span class="city-icon">🌍</span> Other</button>
+                </div>
+                <!-- Hidden input to store value for easier JS access if needed, or just state -->
+            </div>
+
             <div id="profile-inputs-container">
                 <!-- JS will inject Mobility, Diet, Energy, Consumption sections here -->
             </div>
@@ -75,6 +91,10 @@
                         <span>Greener Shift</span>
                     </div>
                 </div>
+            </div>
+
+            <div id="suggestions-container" class="suggestions-grid">
+                <!-- JS Injected Suggestions -->
             </div>
 
             <button id="btn-challenge" class="btn-pill hidden" style="margin-top: 2rem;">Start 14-Day Healing

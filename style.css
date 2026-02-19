@@ -732,3 +732,78 @@ h2 {
 #side-nav {
     display: none;
 }
+
+/* Suggestions */
+.suggestions-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.suggestion-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 1rem;
+    flex: 1 1 200px;
+    max-width: 300px;
+    text-align: left;
+    transition: transform 0.3s;
+}
+
+.suggestion-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.suggestion-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.suggestion-text {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+/* City Selection UI */
+.city-grid-ui {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    justify-content: center;
+}
+
+.city-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 0.8rem 1.2rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.city-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.city-btn.selected {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.4), rgba(76, 175, 80, 0.2));
+    border-color: #81c784;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.city-icon {
+    font-size: 1.2rem;
+}
